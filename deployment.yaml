@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openmanage-deployment
+  namespace: openmanage
+  labels:
+    app: openmanage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: openmanage
+  template:
+    metadata:
+      labels:
+        app: openmanage
+    spec:
+      containers:
+      - name: openmanage
+        image: kamermans/docker-openmanage
+        securityContext:
+          privileged: true
+        env:
+        - name: SNMP_COMMUNITY
+          value: "snmp_community"
+        - name: SNMP_TRAP_DEST
+          value: "snmp_trap_dest"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: openmanage-svc
+  namespace: openmanage
+spec:
+  selector:
+    app: openmanage
+  ports:
+    - protocol: TCP
+      port: 443
+      targetPort: 1311
+    # - protocol: UDP
+    #   port: 161
+    #   targetPort: 161
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: openmanage-ingress
+  namespace: openmanage
+  annotations:
+    kubernetes.io/ingress.class: traefik
