@@ -15,6 +15,8 @@ spec:
       labels:
         app: openmanage
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: k3os-32749
       containers:
       - name: openmanage
         image: kamermans/docker-openmanage
@@ -25,6 +27,20 @@ spec:
           value: "snmp_community"
         - name: SNMP_TRAP_DEST
           value: "snmp_trap_dest"
+        volumeMounts:
+        - name: openmanage-dev
+          mountPath: /dev
+        - name: openmanage-lib
+          mountPath: /lib/modules/$(uname -r)
+      volumes:
+      - name: openmanage-dev
+        hostPath:
+          path: /dev
+          type: Directory
+      - name: openmanage-lib
+        hostPath:
+          path: /lib/modules/$(uname -r)
+          type: Directory
 ---
 apiVersion: v1
 kind: Service
